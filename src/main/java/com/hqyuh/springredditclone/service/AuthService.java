@@ -70,6 +70,7 @@ public class AuthService {
                 .orElseThrow(() -> new SpringRedditException("Invalid Token"));
 
         // phải tìm user(id) để enabled
+        fetchUserAndEnable(verificationToken.get());
 
     }
 
