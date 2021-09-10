@@ -1,6 +1,7 @@
 package com.hqyuh.springredditclone.model;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -11,6 +12,7 @@ import javax.persistence.*;
 @NoArgsConstructor
 @Table(name = "vote")
 @Entity
+@Builder
 public class Vote {
 
     @Id

@@ -1,6 +1,7 @@
 package com.hqyuh.springredditclone.model;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -13,6 +14,7 @@ import java.util.List;
 @NoArgsConstructor
 @Table(name = "subreddit")
 @Entity
+@Builder
 public class Subreddit {
 
     @Id
