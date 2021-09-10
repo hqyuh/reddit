@@ -1,6 +1,7 @@
 package com.hqyuh.springredditclone.service;
 
 import com.hqyuh.springredditclone.dto.RegisterRequest;
+import com.hqyuh.springredditclone.model.NotificationEmail;
 import com.hqyuh.springredditclone.model.User;
 import com.hqyuh.springredditclone.model.VerificationToken;
 import com.hqyuh.springredditclone.repository.UserRepository;
@@ -20,6 +21,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
     private final VerificationTokenRepository verificationTokenRepository;
+    private final MailService mailService;
 
 
     @Transactional
@@ -27,7 +29,7 @@ public class AuthService {
 
         User user = new User();
         user.setUserName(registerRequest.getUsername());
-        user.setEmail(registerRequest.getPassword());
+        user.setEmail(registerRequest.getEmail());
         user.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
         user.setCreated(Instant.now());
         user.setEnabled(false);
@@ -35,6 +37,12 @@ public class AuthService {
         userRepository.save(user);
 
         String token = generateVerificationToken(user);
+        mailService.sendMail(
+                new NotificationEmail("Please activate your Account",
+                        user.getEmail(), "Thank you for signing up to Spring Reddit, " +
+                             "please click on the below url to activate your account: " +
+                             "http://localhost:8080/api/auth/accountVerification/" + token)
+        );
 
     }
 
