@@ -1,6 +1,7 @@
 package com.hqyuh.springredditclone.service;
 
 import com.hqyuh.springredditclone.dto.RegisterRequest;
+import com.hqyuh.springredditclone.exception.SpringRedditException;
 import com.hqyuh.springredditclone.model.NotificationEmail;
 import com.hqyuh.springredditclone.model.User;
 import com.hqyuh.springredditclone.model.VerificationToken;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.time.Instant;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -56,6 +58,33 @@ public class AuthService {
 
         verificationTokenRepository.save(verificationToken);
         return token;
+    }
+
+    // hàm tìm token
+    public void verifyAccount(String token){
+
+        Optional<VerificationToken> verificationToken =
+                verificationTokenRepository.findByToken(token);
+        // mã không hợp lệ
+        verificationToken
+                .orElseThrow(() -> new SpringRedditException("Invalid Token"));
+
+        // phải tìm user(id) để enabled
+
+    }
+
+    @Transactional
+    public void fetchUserAndEnable(VerificationToken verificationToken){
+
+        Long userId = verificationToken.getUser().getUserId();
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new SpringRedditException("User not found with id " + userId));
+
+        // set enabled
+        user.setEnabled(true);
+
+        userRepository.save(user);
+
     }
 
 }
