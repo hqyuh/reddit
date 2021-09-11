@@ -32,6 +32,6 @@ public class User {
     private Instant created;
 
     @Column(name = "enabled")
-    private Boolean enabled;
+    private boolean enabled;
 
 }

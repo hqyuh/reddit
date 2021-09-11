@@ -1,5 +1,7 @@
 package com.hqyuh.springredditclone.service;
 
+import com.hqyuh.springredditclone.dto.AuthenticationResponse;
+import com.hqyuh.springredditclone.dto.LoginRequest;
 import com.hqyuh.springredditclone.dto.RegisterRequest;
 import com.hqyuh.springredditclone.exception.SpringRedditException;
 import com.hqyuh.springredditclone.model.NotificationEmail;
@@ -7,7 +9,12 @@ import com.hqyuh.springredditclone.model.User;
 import com.hqyuh.springredditclone.model.VerificationToken;
 import com.hqyuh.springredditclone.repository.UserRepository;
 import com.hqyuh.springredditclone.repository.VerificationTokenRepository;
+import com.hqyuh.springredditclone.security.JwtProvider;
 import lombok.AllArgsConstructor;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -24,6 +31,8 @@ public class AuthService {
     private final UserRepository userRepository;
     private final VerificationTokenRepository verificationTokenRepository;
     private final MailService mailService;
+    private final AuthenticationManager authenticationManager;
+    private final JwtProvider jwtProvider;
 
 
     @Transactional
@@ -32,7 +41,7 @@ public class AuthService {
         User user = new User();
         user.setUserName(registerRequest.getUsername());
         user.setEmail(registerRequest.getEmail());
-        user.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
+        user.setPassword(encodePassword(registerRequest.getPassword()));
         user.setCreated(Instant.now());
         user.setEnabled(false);
 
@@ -46,6 +55,10 @@ public class AuthService {
                              "http://localhost:8080/api/auth/accountVerification/" + token)
         );
 
+    }
+
+    private String encodePassword(String password) {
+        return passwordEncoder.encode(password);
     }
 
     // hàm tạo token trong bảng VerificationToken
@@ -87,5 +100,17 @@ public class AuthService {
         userRepository.save(user);
 
     }
+
+    public AuthenticationResponse login(LoginRequest loginRequest){
+
+        Authentication authenticate = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
+                loginRequest.getUsername(), loginRequest.getPassword()));
+
+        SecurityContextHolder.getContext().setAuthentication(authenticate);
+        String token = jwtProvider.generateToken(authenticate);
+
+        return new AuthenticationResponse(token, loginRequest.getUsername());
+    }
+
 
 }
