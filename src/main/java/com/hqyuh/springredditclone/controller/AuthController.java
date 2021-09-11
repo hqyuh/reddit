@@ -26,7 +26,7 @@ public class AuthController {
     public ResponseEntity<String> verifyAccount(@PathVariable String token){
 
         authService.verifyAccount(token);
-        return new ResponseEntity<>("Account Activated Sucessfull", HttpStatus.OK);
+        return new ResponseEntity<>("Account Activated Successful", HttpStatus.OK);
 
     }
 
