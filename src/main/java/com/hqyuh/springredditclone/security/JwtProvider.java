@@ -1,6 +1,7 @@
 package com.hqyuh.springredditclone.security;
 
 import com.hqyuh.springredditclone.exception.SpringRedditException;
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.User;
@@ -11,6 +12,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.*;
 import java.security.cert.CertificateException;
+
+import static io.jsonwebtoken.Jwts.parser;
 
 @Service
 public class JwtProvider {
@@ -29,6 +32,7 @@ public class JwtProvider {
     }
 
     public String generateToken(Authentication authentication){
+        // lấy thông tin người dùng
         User principal = (User) authentication.getPrincipal();
         return Jwts.builder()
                 .setSubject(principal.getUsername())
@@ -36,6 +40,7 @@ public class JwtProvider {
                 .compact();
     }
 
+    // private key
     private PrivateKey getPrivateKey() {
 
         try{
@@ -45,5 +50,35 @@ public class JwtProvider {
         }
 
     }
+
+    public boolean validateToken(String jwt){
+
+        parser().setSigningKey(getPublicKey()).parseClaimsJws(jwt);
+        return true;
+
+    }
+
+    private PublicKey getPublicKey(){
+
+        try{
+            return keyStore.getCertificate("springblog").getPublicKey();
+        }catch (KeyStoreException e){
+            throw new SpringRedditException("Exception occurred while retrieving public key from keystore", e);
+        }
+
+    }
+
+    // lấy thông tin user từ jwt
+    public String getUsernameFromJwt(String token){
+
+        Claims claim = parser()
+                .setSigningKey(getPublicKey())
+                .parseClaimsJws(token)
+                .getBody();
+
+        return claim.getSubject();
+    }
+
+
 
 }

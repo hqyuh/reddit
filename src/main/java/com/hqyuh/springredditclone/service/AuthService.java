@@ -103,10 +103,12 @@ public class AuthService {
 
     public AuthenticationResponse login(LoginRequest loginRequest){
 
+        // lấy ra username và password
         Authentication authenticate = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
                 loginRequest.getUsername(), loginRequest.getPassword()));
 
         SecurityContextHolder.getContext().setAuthentication(authenticate);
+        // tạo jwt
         String token = jwtProvider.generateToken(authenticate);
 
         return new AuthenticationResponse(token, loginRequest.getUsername());
