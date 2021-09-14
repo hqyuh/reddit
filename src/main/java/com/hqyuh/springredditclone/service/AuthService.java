@@ -2,6 +2,7 @@ package com.hqyuh.springredditclone.service;
 
 import com.hqyuh.springredditclone.dto.AuthenticationResponse;
 import com.hqyuh.springredditclone.dto.LoginRequest;
+import com.hqyuh.springredditclone.dto.RefreshTokenRequest;
 import com.hqyuh.springredditclone.dto.RegisterRequest;
 import com.hqyuh.springredditclone.exception.SpringRedditException;
 import com.hqyuh.springredditclone.model.NotificationEmail;
@@ -35,6 +36,7 @@ public class AuthService {
     private final MailService mailService;
     private final AuthenticationManager authenticationManager;
     private final JwtProvider jwtProvider;
+    private final RefreshTokenService refreshTokenService;
 
 
     @Transactional
@@ -113,7 +115,17 @@ public class AuthService {
         // tạo jwt
         String token = jwtProvider.generateToken(authenticate);
 
-        return new AuthenticationResponse(token, loginRequest.getUsername());
+        return AuthenticationResponse.builder()
+                .authenticationToken(token)
+                .refreshToken("")
+                .expiresAt(Instant.now().plusMillis(jwtProvider.getJwtExpirationInMillis()))
+                .username(loginRequest.getUsername())
+                .build();
+    }
+
+    // refreshToken
+    public AuthenticationResponse refreshToken(RefreshTokenRequest refreshTokenRequest){
+        return null;
     }
 
     public User getCurrentUser(){
