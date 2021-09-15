@@ -117,7 +117,7 @@ public class AuthService {
 
         return AuthenticationResponse.builder()
                 .authenticationToken(token)
-                .refreshToken("")
+                .refreshToken(refreshTokenService.generateRefreshToken().getToken())
                 .expiresAt(Instant.now().plusMillis(jwtProvider.getJwtExpirationInMillis()))
                 .username(loginRequest.getUsername())
                 .build();
@@ -125,7 +125,15 @@ public class AuthService {
 
     // refreshToken
     public AuthenticationResponse refreshToken(RefreshTokenRequest refreshTokenRequest){
-        return null;
+        refreshTokenService.validateRefreshToken(refreshTokenRequest.getRefreshToken());
+        // tạo lại jwt
+        String token = jwtProvider.generateTokenWithUserName(refreshTokenRequest.getUsername());
+
+        return AuthenticationResponse.builder()
+                .refreshToken(refreshTokenRequest.getRefreshToken())
+                .expiresAt(Instant.now().plusMillis(jwtProvider.getJwtExpirationInMillis()))
+                .username(refreshTokenRequest.getUsername())
+                .build();
     }
 
     public User getCurrentUser(){

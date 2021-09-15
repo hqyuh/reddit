@@ -17,6 +17,7 @@ import java.time.Instant;
 import java.util.Date;
 
 import static io.jsonwebtoken.Jwts.parser;
+import static java.util.Date.from;
 
 @Service
 
@@ -45,7 +46,17 @@ public class JwtProvider {
                 .setSubject(principal.getUsername())
                 .signWith(getPrivateKey())
                 // lấy thời gian
-                .setExpiration(Date.from(Instant.now().plusMillis(jwtExpirationInMillis)))
+                .setExpiration(from(Instant.now().plusMillis(jwtExpirationInMillis)))
+                .compact();
+    }
+
+    // tạo token với username
+    public String generateTokenWithUserName(String username){
+        return Jwts.builder()
+                .setSubject(username)
+                .setIssuedAt(from(Instant.now()))
+                .signWith(getPrivateKey())
+                .setExpiration(from(Instant.now().plusMillis(jwtExpirationInMillis)))
                 .compact();
     }
 
