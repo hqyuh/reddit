@@ -52,6 +52,17 @@ public class CommentService {
                 message));
     }
 
+    public void deleteComment(Long id){
+        commentRepository.deleteById(id);
+    }
+
+    public List<CommentsDTO> getAll(){
+        return commentRepository.findAll()
+                .stream()
+                .map(commentMapper::mapToDto)
+                .collect(Collectors.toList());
+    }
+
     public List<CommentsDTO> getCommentByPostId(Long postId){
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new PostNotFoundException(postId.toString()));

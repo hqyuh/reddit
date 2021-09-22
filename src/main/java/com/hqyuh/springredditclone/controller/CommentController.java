@@ -37,4 +37,17 @@ public class CommentController {
                 .body(commentService.getCommentByUser(username));
     }
 
+    @DeleteMapping("{id}")
+    public ResponseEntity<?> deleteComment(@PathVariable Long id){
+        commentService.deleteComment(id);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @GetMapping
+    public ResponseEntity<List<CommentsDTO>> getAllComments(){
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(commentService.getAll());
+    }
+
 }
